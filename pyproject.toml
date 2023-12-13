@@ -1,0 +1,33 @@
+[project]
+name = "scattack"
+version = "0.1.0"
+description = "A simple tool to perform various attacks on a network, using scapy."
+authors = [
+    {name = "Sayafdine Said", email = "musikid@outlook.com"},
+]
+dependencies = [
+    "scapy>=2.5.0",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+gui = [
+    "customtkinter>=5.2.1",
+]
+cli = [
+    "typer>=0.9.0",
+]
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=7.4.3",
+]
+lint = [
+    "mypy>=1.7.1",
+    "black>=23.12.0",
+    "isort>=5.13.1",
+    "pre-commit>=3.5.0",
+    "pylint>=3.0.3",
+]
