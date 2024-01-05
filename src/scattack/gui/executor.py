@@ -1,7 +1,14 @@
 from logging import error, info
 from threading import Thread
 
-from .command import CommandQueue, ResultQueue, StartCommand, StopCommand, CommandResult
+from .command import (
+    CommandCompleted,
+    CommandQueue,
+    CommandScheduled,
+    ResultQueue,
+    StartCommand,
+    StopCommand,
+)
 
 
 class AbortedCommandExecution(Exception):
@@ -30,6 +37,7 @@ class CommandExecutor(Thread):
 
             match command:
                 case StartCommand(id, fun, args, kwargs, still_valid):
+                    self.res_queue.put(CommandScheduled(id))
                     result = None
                     try:
                         while self.cmd_queue.empty() and still_valid():
@@ -40,7 +48,7 @@ class CommandExecutor(Thread):
                         result = e
                         error(f"Error executing command {command}: {result}")
                     finally:
-                        self.res_queue.put(CommandResult(result, id))
+                        self.res_queue.put(CommandCompleted(id, result))
 
                 case StopCommand():
                     pass

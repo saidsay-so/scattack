@@ -1,7 +1,8 @@
 from queue import Queue
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Any
 from collections.abc import Iterable
+from uuid import uuid4
 
 CommandId = str
 
@@ -22,49 +23,51 @@ class StartCommand:
 
 @dataclass
 class StopCommand:
-    pass
+    id: CommandId
 
 
 Command = StartCommand | StopCommand
 
 
 @dataclass
-class CommandResult:
-    result: Exception | None
-    """The result of the command"""
+class CommandEventBase:
     command_id: CommandId
     """The id of the command"""
 
 
-ResultQueue = Queue[CommandResult]
+@dataclass
+class CommandCompleted(CommandEventBase):
+    result: Exception | None
+
+
+@dataclass
+class CommandScheduled(CommandEventBase):
+    pass
+
+
+CommandEvent = CommandCompleted | CommandScheduled
+
+
+ResultQueue = Queue[CommandEvent]
 CommandQueue = Queue[Command]
 
 
-class _SingletonQueues:
-    """A class that holds the queues for commands and results as
-    a singleton"""
-
-    command_queue: CommandQueue
-    """The queue of commands to execute"""
-    result_queue: ResultQueue
-    """The queue of results from the commands"""
-
-    def __init__(self):
-        self.command_queue = CommandQueue()
-        self.result_queue = ResultQueue()
-
-    def _get_command_queue(self) -> Queue:
-        """Get the queue of commands to execute"""
-        return self.command_queue
-
-    def _get_result_queue(self) -> Queue:
-        """Get the queue of results from the commands"""
-        return self.result_queue
+@dataclass
+class CommandStartRequest:
+    callback: Callable[[CommandEvent], None]
+    # Get all the fields of StartCommand except id
+    fun: Callable[..., Any]
+    args: Iterable
+    kwargs: dict[str, Any]
+    condition: Callable[[], bool]
+    command_id: CommandId = field(default_factory=lambda: str(uuid4()))
 
 
-queues = _SingletonQueues()
+@dataclass
+class CommandStopRequest:
+    command_id: CommandId
 
 
-def submit_command(command: Command):
-    """Submit a command to be executed"""
-    queues._get_command_queue().put(command)
+CommandRequest = CommandStartRequest | CommandStopRequest
+
+TabCommandQueue = Queue[CommandRequest]

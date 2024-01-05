@@ -11,5 +11,5 @@ cd scattack
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .[test]
-python -m scattack.gui
+sudo python -m scattack.gui
 ```

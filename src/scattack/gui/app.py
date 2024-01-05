@@ -1,74 +1,128 @@
-from email.policy import default
-from enum import StrEnum
+from logging import Logger
 import customtkinter
-from scattack.gui.command import CommandId, CommandResult, queues
+from scattack.gui.alert import AlertWindow
+from scattack.gui.command import (
+    CommandCompleted,
+    CommandEvent,
+    CommandQueue,
+    CommandStartRequest,
+    CommandStopRequest,
+    ResultQueue,
+    StartCommand,
+    StopCommand,
+    TabCommandQueue,
+)
+from scattack.gui.executor import AbortedCommandExecution
 from scattack.gui.wifi_deauth.layout import WifiDeauthFrame
 
 
-class CommandVirtualEventType(StrEnum):
-    COMPLETED = "completed"
-
-
-def id_virtual_event(id: CommandId, ev_type: CommandVirtualEventType):
-    return f"<<{id}-{str(ev_type)}>>"
-
-
 class TabView(customtkinter.CTkTabview):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
 
         deauth = self.add("Wi-Fi Deauthentification")
-        WifiDeauthFrame(deauth).pack(fill="both", expand=True)
+        WifiDeauthFrame(deauth, queue=queue).pack(fill="both", expand=True)
 
         arp = self.add("ARP Cache Poisoning")
         dhcp = self.add("DHCP Starvation")
 
 
 class App(customtkinter.CTk):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args,
+        logger: Logger,
+        result_queue: ResultQueue,
+        cmd_queue: CommandQueue,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
+        self.logger = logger
+
+        self.result_queue = result_queue
+        self.cmd_queue = cmd_queue
+        self.tab_cmd_queue = TabCommandQueue()
+        self.callbacks = {}
+
+        self.alert_window = None
 
         self.title("SCAttack")
         self.protocol("WM_DELETE_WINDOW", self.quit)
         self.geometry("800x600")
         self.minsize(500, 400)
-        self.tab_view = TabView(self)
+        self.tab_view = TabView(self, queue=self.tab_cmd_queue)
         self.tab_view.pack(fill="both", expand=True)
 
         self.after(100, self.result_listener)
+        self.after(100, self.command_req_listener)
 
-    def result_listener(self):
-        """Listen for results from the command executor"""
-        while not queues.result_queue.empty():
+    def command_req_listener(self):
+        while not self.tab_cmd_queue.empty():
             try:
-                result = queues.result_queue.get_nowait()
+                req = self.tab_cmd_queue.get_nowait()
             except:
                 break
 
+            self.logger.debug(
+                "A new command request has been popped: %s (%r)",
+                req.command_id,
+                type(req).__name__,
+            )
+
+            match req:
+                case CommandStartRequest(
+                    callback, fun, args, kwargs, still_valid, command_id
+                ):
+                    self.logger.debug("Starting command %s", command_id)
+                    self.callbacks[command_id] = callback
+                    self.cmd_queue.put(
+                        StartCommand(command_id, fun, args, kwargs, still_valid)
+                    )
+                case CommandStopRequest(command_id):
+                    self.logger.debug("Stopping command %s", command_id)
+                    self.cmd_queue.put(StopCommand(command_id))
+
+            self.tab_cmd_queue.task_done()
+        # Reschedule the listener
+        self.after(100, self.command_req_listener)
+
+    def result_listener(self):
+        """Listen for results from the command executor"""
+        while not self.result_queue.empty():
+            try:
+                result = self.result_queue.get_nowait()
+            except:
+                break
+
+            self.logger.debug(
+                "A new result has been popped: %s",
+                result.command_id,
+            )
             self.on_result(result)
-            queues.result_queue.task_done()
+            self.result_queue.task_done()
         # Reschedule the listener
         self.after(100, self.result_listener)
 
-    def on_result(self, result: CommandResult):
-        self.event_generate(
-            id_virtual_event(
-                result.command_id,
-                CommandVirtualEventType.COMPLETED,
-            )
-        )
+    def on_result(self, event: CommandEvent):
+        """Handle a result from the command executor"""
+        self.logger.debug("Handling result %s", event)
+        self.logger.debug("Callbacks: %s", repr(self.callbacks))
 
-        match result.result:
-            case None:
-                pass
-            case Exception as e:
-                self.show_error(e)
+        self.callbacks[event.command_id](event)
+
+        match event:
+            case CommandCompleted(id, result):
+                self.logger.debug("Command %s completed with result %s", id, result)
+                self.callbacks.pop(event.command_id)
+
+                match result:
+                    case None | AbortedCommandExecution():
+                        pass
+                    case Exception() as e:
+                        self.show_error(e)
 
     def show_error(self, e: Exception):
-        # Create another class with CTKTopLevel and add a label
-        # with the error message
-        # https://customtkinter.tomschimansky.com/documentation/windows/toplevel
-        pass
+        self.toplevel_window = AlertWindow(self, message=str(e))
 
     def quit(self, event=None):
         self.destroy()

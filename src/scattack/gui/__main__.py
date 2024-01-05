@@ -1,13 +1,16 @@
 import logging
 import sys
+from scattack.gui.command import CommandQueue, ResultQueue
 from scattack.gui.executor import CommandExecutor
-from scattack.gui.command import queues
 from .app import App
 
 
 def main():
-    app = App()
+    command_queue = CommandQueue()
+    result_queue = ResultQueue()
+
     root = logging.getLogger()
+    app = App(logger=root, cmd_queue=command_queue, result_queue=result_queue)
     root.setLevel(logging.DEBUG)
 
     handler = logging.StreamHandler(sys.stdout)
@@ -17,7 +20,7 @@ def main():
     )
     handler.setFormatter(formatter)
     root.addHandler(handler)
-    executor = CommandExecutor(queues.command_queue, queues.result_queue)
+    executor = CommandExecutor(command_queue, result_queue)
     executor.start()
     app.run()
 
