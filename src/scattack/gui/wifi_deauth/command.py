@@ -1,7 +1,6 @@
 from time import sleep
 from typing import Any
 from scattack.core.wifi_deauth import create_deauth_packet, send_deauth_packet
-from scattack.gui.command import Command, CommandId, StartCommand
 
 
 def create_deauth_command(

@@ -1,0 +1,46 @@
+---
+title: "Demonstration of network attacks with Scapy: scattack, a single platform to launch several attacks"
+author:
+    - name: Sayafdine Said
+      email: sayafdine.said@outlook.com
+      affiliations:
+        - ref: sorb
+    - name: Aris Berkane
+      email: aris.berkane@etu.sorbonne-universite.fr
+      affiliations:
+        - ref: sorb
+    - name: Mohammed Benaissa
+      email: mohammed.benaissa@etu.sorbonne-universite.fr
+      affiliations:
+        - ref: sorb
+    - name: Serigne Saliou Ndiaye
+      email: ser@etu.sorbonne-universite.fr
+      affiliations:
+        - ref: sorb
+affiliations:
+  - id: sorb
+    name: Sorbonne Université
+abstract: >
+    This report presents the development of a tool to launch network attacks using the Scapy library,
+    to demonstrate the use of Scapy to perform different network attacks, in particular Wifi deauthentication,
+    ARP cache poisoning and DHCP Starvation attacks.
+    Are described the usage of the library and its main features, the implementation of the tool and the
+    attacks, and the results of the tests performed.
+---
+
+# Introduction
+
+Imagine this: It's a typical Tuesday morning. You're sipping your coffee, checking your emails, and planning your day. Suddenly, your internet connection drops.
+You try to reconnect, but it's no use.
+You call your service provider,
+only to find out that your router has been the victim of a Wifi deauthentication attack with the goal of stealing your access point credentials.
+Your entire day is disrupted, all because of a vulnerability in your network.
+
+This is not a hypothetical scenario, but a real-life situation that could happen to anyone, anywhere.
+Our report delves into the Scapy library, a tool that can launch such attacks, not to create fear, but to educate and empower.
+By understanding these threats, we can build stronger defenses and ensure that our digital world remains secure.
+
+In order to be able to protect from these vulnerabilities, we need to understand how they work, including how they are implemented.
+Thanks to its intuitive interface and its powerful features, Scapy represents a great tool to demonstrate these attacks.
+
+Scapy is a Python framework which allows to craft, decode, send and capture network packets.
