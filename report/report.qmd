@@ -44,3 +44,4 @@ In order to be able to protect from these vulnerabilities, we need to understand
 Thanks to its intuitive interface and its powerful features, Scapy represents a great tool to demonstrate these attacks.
 
 Scapy is a Python framework which allows to craft, decode, send and capture network packets.
+It has been written by Philippe Biondi and the Scapy community in 2003, as a way to perform network analysis and penetration testing in a simple and efficient way \cite{scapy}.
