@@ -1,13 +1,15 @@
 from time import sleep
 from typing import Any
 from scattack.core import send_packet
-from scattack.core.wifi_deauth import create_deauth_packet
+from scattack.core.arp_poison import create_arppoison_packet
 
 
-def create_deauth_command(
+def create_arppoison_command(
     *,
     target_mac: str,
-    ap_bssid: str,
+    target_ip: str,
+    spoofed_ip: str,
+    attacker_mac: str | None = None,
     iface: str,
     count: int,
     interval: float,
@@ -26,7 +28,12 @@ def create_deauth_command(
             i -= 1
             return True
 
-    pkt = create_deauth_packet(target_mac=target_mac, ap_bssid=ap_bssid)
+    pkt = create_arppoison_packet(
+        target_mac=target_mac,
+        target_ip=target_ip,
+        spoofed_ip=spoofed_ip,
+        attacker_mac=attacker_mac,
+    )
 
     return {
         "fun": send,

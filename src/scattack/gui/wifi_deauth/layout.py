@@ -1,4 +1,6 @@
 from dataclasses import asdict
+import logging
+from tkinter import DoubleVar, IntVar, StringVar
 import customtkinter
 from scattack.gui.command import (
     CommandCompleted,
@@ -6,75 +8,81 @@ from scattack.gui.command import (
     CommandScheduled,
     CommandStartRequest,
     CommandStopRequest,
-    StopCommand,
     TabCommandQueue,
 )
+from scattack.gui.validation import is_float, is_int, is_mac_address
 from scattack.gui.wifi_deauth.command import create_deauth_command
+from scattack.gui.wifi_deauth.utils import ETHER_ANY, ETHER_BROADCAST, DeauthOptions
 
-from scattack.gui.wifi_deauth.utils import DeauthOptions
+from scapy.all import conf
 
 
 class DeauthOptionsView(customtkinter.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options = DeauthOptions()
 
         customtkinter.CTkLabel(self, text="Target MAC address").pack(
             fill="x", padx=5, pady=5
         )
-        self.target_mac = customtkinter.CTkEntry(
-            self, placeholder_text="ff:ff:ff:ff:ff:ff"
+
+        self.target_mac = StringVar(value=ETHER_BROADCAST)
+        self.target_mac_input = customtkinter.CTkEntry(
+            self,
+            placeholder_text=ETHER_ANY,
+            validatecommand=(self.register(is_mac_address), "%P"),
+            validate="focus",
+            textvariable=self.target_mac,
         )
-        self.target_mac.pack(fill="x", padx=5, pady=5)
-        self.target_mac.bind("<FocusOut>", self.on_target_mac_change)
+        self.target_mac_input.pack(fill="x", padx=5, pady=5)
 
         customtkinter.CTkLabel(self, text="Access point BSSID").pack(
             fill="x", padx=5, pady=5
         )
-        self.ap_bssid = customtkinter.CTkEntry(
-            self, placeholder_text="00:00:00:00:00:00"
+        ap_bssid_validate = (self.register(is_mac_address), "%P")
+        self.ap_bssid = StringVar(value=ETHER_ANY)
+        self.ap_bssid_input = customtkinter.CTkEntry(
+            self,
+            validatecommand=ap_bssid_validate,
+            validate="focus",
+            textvariable=self.ap_bssid,
         )
-        self.ap_bssid.pack(fill="x", padx=5, pady=5)
-        self.ap_bssid.bind("<FocusOut>", self.on_ap_bssid_change)
+        self.ap_bssid_input.pack(fill="x", padx=5, pady=5)
 
         customtkinter.CTkLabel(self, text="Interface").pack(fill="x", padx=5, pady=5)
-        self.iface = customtkinter.CTkEntry(self, placeholder_text="wlan0")
-        self.iface.pack(fill="x", padx=5, pady=5)
-        self.iface.bind("<FocusOut>", self.on_iface_change)
+        self.iface = StringVar()
+        self.iface_input = customtkinter.CTkComboBox(
+            self, variable=self.iface, values=conf.ifaces
+        )
+        self.iface_input.pack(fill="x", padx=5, pady=5)
 
         customtkinter.CTkLabel(self, text="Count").pack(fill="x", padx=5, pady=5)
-        self.count = customtkinter.CTkEntry(self, placeholder_text="0")
-        self.count.pack(fill="x", padx=5, pady=5)
-        self.count.bind("<FocusOut>", self.on_count_change)
+        count_validate = (self.register(is_int), "%P")
+        self.count = IntVar(value=0)
+        self.count_input = customtkinter.CTkEntry(
+            self,
+            validate="all",
+            validatecommand=count_validate,
+            textvariable=self.count,
+        )
+        self.count_input.pack(fill="x", padx=5, pady=5)
 
         customtkinter.CTkLabel(self, text="Interval").pack(fill="x", padx=5, pady=5)
-        self.interval = customtkinter.CTkEntry(self, placeholder_text="0.1")
-        self.interval.pack(fill="x", padx=5, pady=5)
-        self.interval.bind("<FocusOut>", self.on_interval_change)
-
-    def on_target_mac_change(self, event):
-        self.options.target_mac = self.target_mac.get()
-
-    def on_ap_bssid_change(self, event):
-        self.options.ap_bssid = self.ap_bssid.get()
-
-    def on_iface_change(self, event):
-        self.options.iface = self.iface.get()
-
-    def on_count_change(self, event):
-        if self.count.get():
-            self.options.count = int(self.count.get())
-
-    def on_interval_change(self, event):
-        if self.interval.get():
-            self.options.interval = float(self.interval.get())
+        interval_validate = (self.register(is_float), "%P")
+        self.interval = DoubleVar(value=0.1)
+        self.interval_input = customtkinter.CTkEntry(
+            self,
+            validate="all",
+            validatecommand=interval_validate,
+            textvariable=self.interval,
+        )
+        self.interval_input.pack(fill="x", padx=5, pady=5)
 
 
 class WifiDeauthFrame(customtkinter.CTkFrame):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options = DeauthOptionsView(self)
-        self.options.pack(fill="x", padx=5, pady=5)
+        self.options_view = DeauthOptionsView(self)
+        self.options_view.pack(fill="x", padx=5, pady=5)
         self.cmd_queue = queue
 
         self.cmd_id = None
@@ -91,7 +99,14 @@ class WifiDeauthFrame(customtkinter.CTkFrame):
         if self.started and self.cmd_id:
             self.cmd_queue.put(CommandStopRequest(self.cmd_id))
         else:
-            cmd = create_deauth_command(**asdict(self.options.options))
+            options = DeauthOptions(
+                target_mac=self.options_view.target_mac.get(),
+                ap_bssid=self.options_view.ap_bssid.get(),
+                iface=self.options_view.iface.get(),
+                count=self.options_view.count.get(),
+                interval=self.options_view.interval.get(),
+            )
+            cmd = create_deauth_command(**asdict(options))
             req = CommandStartRequest(callback=self.on_command_result, **cmd)
             self.cmd_id = req.command_id
             self.cmd_queue.put(req)

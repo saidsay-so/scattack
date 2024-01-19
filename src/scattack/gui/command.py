@@ -55,7 +55,7 @@ CommandQueue = Queue[Command]
 @dataclass
 class CommandStartRequest:
     callback: Callable[[CommandEvent], None]
-    # Get all the fields of StartCommand except id
+    # All fields of StartCommand except id
     fun: Callable[..., Any]
     args: Iterable
     kwargs: dict[str, Any]
