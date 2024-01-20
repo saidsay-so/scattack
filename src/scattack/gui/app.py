@@ -1,6 +1,6 @@
 from logging import Logger
 from scattack.gui.alert import AlertWindow
-from scattack.gui.arp_poison.layout import ArpPoisonFrame
+from scattack.gui.tabs.arp_poison.layout import ArpPoisonFrame
 from scattack.gui.command import (
     CommandCompleted,
     CommandEvent,
@@ -14,7 +14,7 @@ from scattack.gui.command import (
 )
 from scattack.gui.dhcp_starve.layout import DhcpStarveFrame
 from scattack.gui.executor import AbortedCommandExecution
-from scattack.gui.wifi_deauth.layout import WifiDeauthFrame
+from scattack.gui.tabs.wifi_deauth.layout import WifiDeauthFrame
 
 from tkinter import ttk
 import tkinter
