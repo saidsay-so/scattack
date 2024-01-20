@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from tkinter import DoubleVar, IntVar, StringVar
-import customtkinter
+from tkinter import ttk
 from scattack.gui.arp_poison.command import create_arppoison_command
 from scattack.gui.command import (
     CommandCompleted,
@@ -21,15 +21,13 @@ from scattack.gui.arp_poison.options import (
 from scapy.all import conf
 
 
-class ArpPoisonOptionsView(customtkinter.CTkFrame):
+class DhcpStarveOptionsView(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        customtkinter.CTkLabel(self, text="Spoofed MAC address").pack(
-            fill="x", padx=5, pady=5
-        )
+        ttk.Label(self, text="Spoofed MAC address").pack(fill="x", padx=5, pady=5)
         self.spoofed_mac = StringVar(value="")
-        self.spoofed_mac_input = customtkinter.CTkEntry(
+        self.spoofed_mac_input = ttk.Entry(
             self,
             validatecommand=(self.register(is_mac_address), "%P"),
             validate="focus",
@@ -37,10 +35,10 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
         )
         self.spoofed_mac_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Target IP").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Target IP").pack(fill="x", padx=5, pady=5)
         target_ip_validate = (self.register(is_ip_address), "%P")
         self.target_ip = StringVar(value=IP_ANY)
-        self.target_ip_input = customtkinter.CTkEntry(
+        self.target_ip_input = ttk.Entry(
             self,
             validatecommand=target_ip_validate,
             validate="focus",
@@ -48,10 +46,10 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
         )
         self.target_ip_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Spoofed IP").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Spoofed IP").pack(fill="x", padx=5, pady=5)
         spoofed_ip_validate = (self.register(is_ip_address), "%P")
         self.spoofed_ip = StringVar(value=IP_ANY)
-        self.spoofed_ip_input = customtkinter.CTkEntry(
+        self.spoofed_ip_input = ttk.Entry(
             self,
             validatecommand=spoofed_ip_validate,
             validate="focus",
@@ -59,17 +57,17 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
         )
         self.spoofed_ip_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Interface").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
         self.iface = StringVar()
-        self.iface_input = customtkinter.CTkComboBox(
-            self, variable=self.iface, values=conf.ifaces
+        self.iface_input = ttk.Combobox(
+            self, textvariable=self.iface, values=conf.ifaces
         )
         self.iface_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Count").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Count").pack(fill="x", padx=5, pady=5)
         count_validate = (self.register(is_int), "%P")
         self.count = IntVar(value=0)
-        self.count_input = customtkinter.CTkEntry(
+        self.count_input = ttk.Entry(
             self,
             validate="all",
             validatecommand=count_validate,
@@ -77,10 +75,10 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
         )
         self.count_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Interval").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Interval").pack(fill="x", padx=5, pady=5)
         interval_validate = (self.register(is_float), "%P")
         self.interval = DoubleVar(value=0.1)
-        self.interval_input = customtkinter.CTkEntry(
+        self.interval_input = ttk.Entry(
             self,
             validate="all",
             validatecommand=interval_validate,
@@ -89,16 +87,16 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
         self.interval_input.pack(fill="x", padx=5, pady=5)
 
 
-class ArpPoisonFrame(customtkinter.CTkFrame):
+class DhcpStarveFrame(ttk.Frame):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options_view = ArpPoisonOptionsView(self)
+        self.options_view = DhcpStarveOptionsView(self)
         self.options_view.pack(fill="x", padx=5, pady=5)
         self.cmd_queue = queue
 
         self.cmd_id = None
         self.started = False
-        self.action_button = customtkinter.CTkButton(
+        self.action_button = ttk.Button(
             self, text="Start", command=self.on_action_button_click
         )
         self.action_button.pack(fill="x", padx=5, pady=5)

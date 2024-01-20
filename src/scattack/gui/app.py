@@ -1,5 +1,4 @@
 from logging import Logger
-import customtkinter
 from scattack.gui.alert import AlertWindow
 from scattack.gui.arp_poison.layout import ArpPoisonFrame
 from scattack.gui.command import (
@@ -13,24 +12,26 @@ from scattack.gui.command import (
     StopCommand,
     TabCommandQueue,
 )
+from scattack.gui.dhcp_starve.layout import DhcpStarveFrame
 from scattack.gui.executor import AbortedCommandExecution
 from scattack.gui.wifi_deauth.layout import WifiDeauthFrame
 
+from tkinter import ttk
+import tkinter
 
-class TabView(customtkinter.CTkTabview):
+
+class TabView(ttk.Notebook):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
 
-        deauth = self.add("Wi-Fi Deauthentification")
-        WifiDeauthFrame(deauth, queue=queue).pack(fill="both", expand=True)
+        deauth = self.add(WifiDeauthFrame(queue=queue), text="Wi-Fi Deauthentification")
 
-        arp = self.add("ARP Cache Poisoning")
-        ArpPoisonFrame(arp, queue=queue).pack(fill="both", expand=True)
+        arp = self.add(ArpPoisonFrame(queue=queue), text="ARP Cache Poisoning")
 
-        dhcp = self.add("DHCP Starvation")
+        dhcp = self.add(DhcpStarveFrame(queue=queue), text="DHCP Starvation")
 
 
-class App(customtkinter.CTk):
+class App(tkinter.Tk):
     def __init__(
         self,
         *args,

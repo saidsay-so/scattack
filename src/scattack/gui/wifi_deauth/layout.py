@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from tkinter import DoubleVar, IntVar, StringVar
-import customtkinter
+from tkinter import ttk
 from scattack.gui.command import (
     CommandCompleted,
     CommandEvent,
@@ -16,30 +16,25 @@ from scattack.gui.wifi_deauth.options import ETHER_ANY, ETHER_BROADCAST, DeauthO
 from scapy.all import conf
 
 
-class DeauthOptionsView(customtkinter.CTkFrame):
+class DeauthOptionsView(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        customtkinter.CTkLabel(self, text="Target MAC address").pack(
-            fill="x", padx=5, pady=5
-        )
+        ttk.Label(self, text="Target MAC address").pack(fill="x", padx=5, pady=5)
 
         self.target_mac = StringVar(value=ETHER_BROADCAST)
-        self.target_mac_input = customtkinter.CTkEntry(
+        self.target_mac_input = ttk.Entry(
             self,
-            placeholder_text=ETHER_ANY,
             validatecommand=(self.register(is_mac_address), "%P"),
             validate="focus",
             textvariable=self.target_mac,
         )
         self.target_mac_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Access point BSSID").pack(
-            fill="x", padx=5, pady=5
-        )
+        ttk.Label(self, text="Access point BSSID").pack(fill="x", padx=5, pady=5)
         ap_bssid_validate = (self.register(is_mac_address), "%P")
         self.ap_bssid = StringVar(value=ETHER_ANY)
-        self.ap_bssid_input = customtkinter.CTkEntry(
+        self.ap_bssid_input = ttk.Entry(
             self,
             validatecommand=ap_bssid_validate,
             validate="focus",
@@ -47,17 +42,17 @@ class DeauthOptionsView(customtkinter.CTkFrame):
         )
         self.ap_bssid_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Interface").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
         self.iface = StringVar()
-        self.iface_input = customtkinter.CTkComboBox(
-            self, variable=self.iface, values=conf.ifaces
+        self.iface_input = ttk.Combobox(
+            self, textvariable=self.iface, values=tuple(ifa for ifa in conf.ifaces)
         )
         self.iface_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Count").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Count").pack(fill="x", padx=5, pady=5)
         count_validate = (self.register(is_int), "%P")
         self.count = IntVar(value=0)
-        self.count_input = customtkinter.CTkEntry(
+        self.count_input = ttk.Entry(
             self,
             validate="all",
             validatecommand=count_validate,
@@ -65,10 +60,10 @@ class DeauthOptionsView(customtkinter.CTkFrame):
         )
         self.count_input.pack(fill="x", padx=5, pady=5)
 
-        customtkinter.CTkLabel(self, text="Interval").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Interval").pack(fill="x", padx=5, pady=5)
         interval_validate = (self.register(is_float), "%P")
         self.interval = DoubleVar(value=0.1)
-        self.interval_input = customtkinter.CTkEntry(
+        self.interval_input = ttk.Entry(
             self,
             validate="all",
             validatecommand=interval_validate,
@@ -77,7 +72,7 @@ class DeauthOptionsView(customtkinter.CTkFrame):
         self.interval_input.pack(fill="x", padx=5, pady=5)
 
 
-class WifiDeauthFrame(customtkinter.CTkFrame):
+class WifiDeauthFrame(ttk.Frame):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
         self.options_view = DeauthOptionsView(self)
@@ -87,7 +82,7 @@ class WifiDeauthFrame(customtkinter.CTkFrame):
         self.cmd_id = None
         self.started = False
         self.action_text = StringVar(value="Start")
-        self.action_button = customtkinter.CTkButton(
+        self.action_button = ttk.Button(
             self, textvariable=self.action_text, command=self.on_action_button_click
         )
         self.action_button.pack(fill="x", padx=5, pady=5)
