@@ -7,8 +7,7 @@ authors = [
 ]
 dependencies = [
     "scapy>=2.5.0",
-    "customtkinter>=5.2.1",
-    "CTkToolTip>=0.8",
+    "sv-ttk>=2.5.5",
 ]
 requires-python = ">=3.10"
 readme = "README.md"

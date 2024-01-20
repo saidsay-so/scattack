@@ -24,6 +24,7 @@ def main():
     executor = CommandExecutor(command_queue, result_queue)
     executor.start()
     app.run()
+    executor.stop()
 
 
 exit(main())

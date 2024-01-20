@@ -26,7 +26,12 @@ class StopCommand:
     id: CommandId
 
 
-Command = StartCommand | StopCommand
+@dataclass
+class StopExecutor:
+    pass
+
+
+Command = StartCommand | StopCommand | StopExecutor
 
 
 @dataclass

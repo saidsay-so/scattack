@@ -5,7 +5,7 @@
 groups = ["default", "test", "gui", "cli", "lint"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:cf92bfc426d74f83ac9eb9a0eacd8d1ce222922d0eec9ff29a9314e027e3b4bf"
+content_hash = "sha256:16aa60faf53533fea3c8a82cadec1b24ed5d9a2aea4fde80752b559bd90248d4"
 
 [[package]]
 name = "aiohttp"
@@ -701,6 +701,16 @@ summary = "Easily download, build, install, upgrade, and uninstall Python packag
 files = [
     {file = "setuptools-69.0.2-py3-none-any.whl", hash = "sha256:1e8fdff6797d3865f37397be788a4e3cba233608e9b509382a2777d25ebde7f2"},
     {file = "setuptools-69.0.2.tar.gz", hash = "sha256:735896e78a4742605974de002ac60562d286fa8051a7e2299445e8e8fbb01aa6"},
+]
+
+[[package]]
+name = "sv-ttk"
+version = "2.5.5"
+requires_python = ">=3.7"
+summary = "A gorgeous theme for Tkinter, based on Windows 11's UI"
+files = [
+    {file = "sv_ttk-2.5.5-py3-none-any.whl", hash = "sha256:49d1cd03c032728c183d1fe2318f88cdb658ef3e87157e1ca3fcf6661054965b"},
+    {file = "sv_ttk-2.5.5.tar.gz", hash = "sha256:9bbfe2aba6cc6f9fdf70d79331046543c9666fcccc78bad5ff648a9987e3cedb"},
 ]
 
 [[package]]
