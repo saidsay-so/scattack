@@ -1,21 +1,17 @@
+__all__ = ["ARPPoisonOptions", "ETHER_ANY", "ETHER_BROADCAST", "IP_ANY"]
+
 from dataclasses import dataclass
 
-from scattack.gui.utils import BaseOptions
-
-ETHER_BROADCAST = "ff:ff:ff:ff:ff:ff"
-ETHER_ANY = "00:00:00:00:00:00"
-IP_ANY = "0.0.0.0"
+from scattack.gui.utils import ETHER_ANY, IP_ANY, ETHER_BROADCAST, BaseOptions
 
 
 @dataclass
 class ARPPoisonOptions(BaseOptions):
-    target_mac: str = ETHER_ANY
-    """MAC address of the target"""
     target_ip: str = IP_ANY
     """IP address of the target"""
     spoofed_ip: str = IP_ANY
     """Spoofed IP address"""
-    spoofed_mac: str = ETHER_ANY
+    spoofed_mac: str | None = None
     """Spoofed MAC address"""
     count: int = 0
     """Number of ARP packets to send, with 0 being infinite"""

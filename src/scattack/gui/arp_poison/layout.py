@@ -25,19 +25,17 @@ class ArpPoisonOptionsView(customtkinter.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        customtkinter.CTkLabel(self, text="Target MAC address").pack(
+        customtkinter.CTkLabel(self, text="Spoofed MAC address").pack(
             fill="x", padx=5, pady=5
         )
-
-        self.target_mac = StringVar(value=ETHER_BROADCAST)
-        self.target_mac_input = customtkinter.CTkEntry(
+        self.spoofed_mac = StringVar(value="")
+        self.spoofed_mac_input = customtkinter.CTkEntry(
             self,
-            placeholder_text=ETHER_ANY,
             validatecommand=(self.register(is_mac_address), "%P"),
             validate="focus",
-            textvariable=self.target_mac,
+            textvariable=self.spoofed_mac,
         )
-        self.target_mac_input.pack(fill="x", padx=5, pady=5)
+        self.spoofed_mac_input.pack(fill="x", padx=5, pady=5)
 
         customtkinter.CTkLabel(self, text="Target IP").pack(fill="x", padx=5, pady=5)
         target_ip_validate = (self.register(is_ip_address), "%P")
@@ -113,8 +111,11 @@ class ArpPoisonFrame(customtkinter.CTkFrame):
             self.cmd_queue.put(CommandStopRequest(self.cmd_id))
         else:
             options = ARPPoisonOptions(
-                target_mac=self.options_view.target_mac.get(),
                 target_ip=self.options_view.target_ip.get(),
+                spoofed_ip=self.options_view.spoofed_ip.get(),
+                spoofed_mac=self.options_view.spoofed_mac.get()
+                if self.options_view.spoofed_mac.get() != ""
+                else None,
                 iface=self.options_view.iface.get(),
                 count=self.options_view.count.get(),
                 interval=self.options_view.interval.get(),

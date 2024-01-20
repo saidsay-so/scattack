@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 
-from scattack.gui.utils import BaseOptions
-
-ETHER_BROADCAST = "ff:ff:ff:ff:ff:ff"
-ETHER_ANY = "00:00:00:00:00:00"
+from scattack.gui.utils import ETHER_ANY, ETHER_BROADCAST, BaseOptions
 
 
 @dataclass

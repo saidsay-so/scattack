@@ -6,10 +6,9 @@ from scattack.core.arp_poison import create_arppoison_packet
 
 def create_arppoison_command(
     *,
-    target_mac: str,
     target_ip: str,
     spoofed_ip: str,
-    spoofed_mac: str,
+    spoofed_mac: str | None = None,
     iface: str,
     count: int,
     interval: float,
@@ -29,7 +28,6 @@ def create_arppoison_command(
             return True
 
     pkt = create_arppoison_packet(
-        target_mac=target_mac,
         target_ip=target_ip,
         spoofed_ip=spoofed_ip,
         spoofed_mac=spoofed_mac,
