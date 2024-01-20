@@ -4,8 +4,8 @@
 [metadata]
 groups = ["default", "test", "gui", "cli", "lint"]
 strategy = ["cross_platform"]
-lock_version = "4.4"
-content_hash = "sha256:d62b5fa71ed729d9c723bde901b5646ae0a90c91ad49b6264073e8a29ebdbec6"
+lock_version = "4.4.1"
+content_hash = "sha256:cf92bfc426d74f83ac9eb9a0eacd8d1ce222922d0eec9ff29a9314e027e3b4bf"
 
 [[package]]
 name = "aiohttp"
@@ -151,7 +151,7 @@ version = "23.12.0"
 requires_python = ">=3.8"
 summary = "The uncompromising code formatter."
 dependencies = [
-    "aiohttp>=3.7.4; sys_platform != \"win32\" or implementation_name != \"pypy\" and extra == \"d\"",
+    "aiohttp>=3.7.4; sys_platform != \"win32\" or implementation_name != \"pypy\"",
     "click>=8.0.0",
     "mypy-extensions>=0.4.3",
     "packaging>=22.0",
@@ -216,6 +216,16 @@ summary = "Cross-platform colored terminal text."
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+
+[[package]]
+name = "ctktooltip"
+version = "0.8"
+requires_python = ">=3.6"
+summary = "Customtkinter Tooltip widget"
+files = [
+    {file = "CTkToolTip-0.8-py3-none-any.whl", hash = "sha256:dd91fc208596e14d0eea03eaa57b0d6095be995538ce2b87538e4266fa7a753d"},
+    {file = "CTkToolTip-0.8.tar.gz", hash = "sha256:08596120b12c8fa9b9bff2931a3aef3a29719380def9a0a50380c3b6852b4564"},
 ]
 
 [[package]]
@@ -604,7 +614,6 @@ dependencies = [
     "platformdirs>=2.2.0",
     "tomli>=1.1.0; python_version < \"3.11\"",
     "tomlkit>=0.10.1",
-    "typing-extensions>=3.10.0; python_version < \"3.10\"",
 ]
 files = [
     {file = "pylint-3.0.3-py3-none-any.whl", hash = "sha256:7a1585285aefc5165db81083c3e06363a27448f6b467b3b0f30dbd0ac1f73810"},

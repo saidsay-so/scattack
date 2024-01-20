@@ -9,7 +9,7 @@ def create_arppoison_command(
     target_mac: str,
     target_ip: str,
     spoofed_ip: str,
-    spoofed_mac: str,
+    attacker_mac: str | None = None,
     iface: str,
     count: int,
     interval: float,
@@ -32,7 +32,7 @@ def create_arppoison_command(
         target_mac=target_mac,
         target_ip=target_ip,
         spoofed_ip=spoofed_ip,
-        spoofed_mac=spoofed_mac,
+        spoofed_mac=attacker_mac,
     )
 
     return {

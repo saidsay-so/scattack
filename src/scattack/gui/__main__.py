@@ -20,6 +20,7 @@ def main():
     )
     handler.setFormatter(formatter)
     root.addHandler(handler)
+
     executor = CommandExecutor(command_queue, result_queue)
     executor.start()
     app.run()

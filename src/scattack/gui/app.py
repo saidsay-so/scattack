@@ -1,6 +1,7 @@
 from logging import Logger
 import customtkinter
 from scattack.gui.alert import AlertWindow
+from scattack.gui.arp_poison.layout import ArpPoisonFrame
 from scattack.gui.command import (
     CommandCompleted,
     CommandEvent,
@@ -24,6 +25,8 @@ class TabView(customtkinter.CTkTabview):
         WifiDeauthFrame(deauth, queue=queue).pack(fill="both", expand=True)
 
         arp = self.add("ARP Cache Poisoning")
+        ArpPoisonFrame(arp, queue=queue).pack(fill="both", expand=True)
+
         dhcp = self.add("DHCP Starvation")
 
 
