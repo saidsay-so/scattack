@@ -1,5 +1,4 @@
-from ipaddress import ip_address
-import logging
+from ipaddress import ip_address, ip_network
 from re import match
 
 
@@ -24,6 +23,21 @@ def is_ip_address(addr: str) -> bool:
         bool: True if the input is a valid IP address, False otherwise"""
     try:
         ip_address(addr)
+        return True
+    except ValueError:
+        return False
+
+
+def is_ip_network(addr: str) -> bool:
+    """Check if the input is a valid IP network.
+
+    Args:
+        addr (str): IP network
+
+    Returns:
+        bool: True if the input is a valid IP network, False otherwise"""
+    try:
+        ip_network(addr)
         return True
     except ValueError:
         return False

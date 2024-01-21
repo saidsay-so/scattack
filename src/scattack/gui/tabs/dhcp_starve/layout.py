@@ -1,6 +1,7 @@
 from dataclasses import asdict
-from tkinter import DoubleVar, IntVar, StringVar
+from tkinter import DoubleVar, StringVar
 from tkinter import ttk
+from scattack.core.utils import ETHER_ANY, IP_ANY
 from scattack.gui.command import (
     CommandCompleted,
     CommandEvent,
@@ -9,24 +10,48 @@ from scattack.gui.command import (
     CommandStopRequest,
     TabCommandQueue,
 )
-from scattack.gui.validation import is_float, is_int, is_mac_address
-from scattack.gui.tabs.wifi_deauth.command import create_deauth_command
-from scattack.gui.tabs.wifi_deauth.options import (
-    ETHER_ANY,
-    ETHER_BROADCAST,
-    DeauthOptions,
+from scattack.gui.tabs.dhcp_starve.command import create_dhcp_stave_command
+from scattack.gui.tabs.dhcp_starve.options import DhcpStarveOptions
+from scattack.gui.validation import (
+    is_float,
+    is_ip_address,
+    is_ip_network,
+    is_mac_address,
 )
+from scapy.config import conf
+from scapy.layers.l2 import Net
 
-from scapy.all import conf
 
-
-class DeauthOptionsView(ttk.Frame):
+class DhcpStarveOptionsView(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ttk.Label(self, text="Target MAC address").pack(fill="x", padx=5, pady=5)
+        ttk.Label(self, text="Network range").pack(fill="x", padx=5, pady=5)
+        ap_bssid_validate = (self.register(is_ip_network), "%P")
+        self.net_range = StringVar(value=IP_ANY + "/24")
+        self.net_range_input = ttk.Entry(
+            self,
+            validatecommand=ap_bssid_validate,
+            validate="focus",
+            textvariable=self.net_range,
+        )
+        self.net_range_input.pack(fill="x", padx=5, pady=5)
 
-        self.target_mac = StringVar(value=ETHER_BROADCAST)
+        def num_hosts_listener(*_):
+            if not self.net_range.get() or not is_ip_network(self.net_range.get()):
+                return
+
+            num_hosts_text.set(f"Number of hosts: {Net(self.net_range.get()).count}")
+
+        num_hosts_text = StringVar()
+        self.net_range.trace_add(
+            "write",
+            num_hosts_listener,
+        )
+        ttk.Label(self, textvariable=num_hosts_text).pack(fill="x", padx=5, pady=2)
+
+        ttk.Label(self, text="Target MAC address").pack(fill="x", padx=5, pady=5)
+        self.target_mac = StringVar(value=ETHER_ANY)
         self.target_mac_input = ttk.Entry(
             self,
             validatecommand=(self.register(is_mac_address), "%P"),
@@ -35,34 +60,12 @@ class DeauthOptionsView(ttk.Frame):
         )
         self.target_mac_input.pack(fill="x", padx=5, pady=5)
 
-        ttk.Label(self, text="Access point BSSID").pack(fill="x", padx=5, pady=5)
-        ap_bssid_validate = (self.register(is_mac_address), "%P")
-        self.ap_bssid = StringVar(value=ETHER_ANY)
-        self.ap_bssid_input = ttk.Entry(
-            self,
-            validatecommand=ap_bssid_validate,
-            validate="focus",
-            textvariable=self.ap_bssid,
-        )
-        self.ap_bssid_input.pack(fill="x", padx=5, pady=5)
-
         ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
         self.iface = StringVar()
         self.iface_input = ttk.Combobox(
             self, textvariable=self.iface, values=tuple(ifa for ifa in conf.ifaces)
         )
         self.iface_input.pack(fill="x", padx=5, pady=5)
-
-        ttk.Label(self, text="Count").pack(fill="x", padx=5, pady=5)
-        count_validate = (self.register(is_int), "%P")
-        self.count = IntVar(value=0)
-        self.count_input = ttk.Entry(
-            self,
-            validate="all",
-            validatecommand=count_validate,
-            textvariable=self.count,
-        )
-        self.count_input.pack(fill="x", padx=5, pady=5)
 
         ttk.Label(self, text="Interval").pack(fill="x", padx=5, pady=5)
         interval_validate = (self.register(is_float), "%P")
@@ -76,10 +79,10 @@ class DeauthOptionsView(ttk.Frame):
         self.interval_input.pack(fill="x", padx=5, pady=5)
 
 
-class WifiDeauthFrame(ttk.Frame):
+class DhcpStarveFrame(ttk.Frame):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options_view = DeauthOptionsView(self)
+        self.options_view = DhcpStarveOptionsView(self)
         self.options_view.pack(fill="x", padx=5, pady=5)
         self.cmd_queue = queue
 
@@ -98,14 +101,13 @@ class WifiDeauthFrame(ttk.Frame):
         if self.started and self.cmd_id:
             self.cmd_queue.put(CommandStopRequest(self.cmd_id))
         else:
-            options = DeauthOptions(
+            options = DhcpStarveOptions(
+                net_range=self.options_view.net_range.get(),
                 target_mac=self.options_view.target_mac.get(),
-                ap_bssid=self.options_view.ap_bssid.get(),
                 iface=self.options_view.iface.get(),
-                count=self.options_view.count.get(),
                 interval=self.options_view.interval.get(),
             )
-            cmd = create_deauth_command(**asdict(options))
+            cmd = create_dhcp_stave_command(**asdict(options))
             req = CommandStartRequest(callback=self.on_command_result, **cmd)
             self.cmd_id = req.command_id
             self.cmd_queue.put(req)

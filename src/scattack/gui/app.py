@@ -12,7 +12,7 @@ from scattack.gui.command import (
     StopCommand,
     TabCommandQueue,
 )
-from scattack.gui.dhcp_starve.layout import DhcpStarveFrame
+from scattack.gui.tabs.dhcp_starve.layout import DhcpStarveFrame
 from scattack.gui.executor import AbortedCommandExecution
 from scattack.gui.tabs.wifi_deauth.layout import WifiDeauthFrame
 

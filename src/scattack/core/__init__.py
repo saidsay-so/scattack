@@ -3,10 +3,10 @@ from scapy.sendrecv import sendp
 
 
 def send_packet(pkt: Packet, iface: str) -> None:
-    """Send 802.11 deauthentification packet.
+    """Send Layer 2 packet.
 
     Args:
-        pkt (Packet): 802.11 deauthentification packet
+        pkt (Packet): Packet to send
         iface (str): name of the interface to send the packet on
     Returns:
         None"""

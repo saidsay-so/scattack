@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from tkinter import DoubleVar, IntVar, StringVar
 from tkinter import ttk
-from scattack.gui.arp_poison.command import create_arppoison_command
+from scattack.gui.tabs.arp_poison.command import create_arppoison_command
 from scattack.gui.command import (
     CommandCompleted,
     CommandEvent,
@@ -11,7 +11,7 @@ from scattack.gui.command import (
     TabCommandQueue,
 )
 from scattack.gui.validation import is_float, is_int, is_ip_address, is_mac_address
-from scattack.gui.arp_poison.options import (
+from scattack.gui.tabs.arp_poison.options import (
     ETHER_ANY,
     ETHER_BROADCAST,
     IP_ANY,
