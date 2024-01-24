@@ -47,7 +47,7 @@ class DeauthOptionsView(ttk.Frame):
         self.ap_bssid_input.pack(fill="x", padx=5, pady=5)
 
         ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
-        self.iface = StringVar()
+        self.iface = StringVar(value=next(ifa for ifa in conf.ifaces))
         self.iface_input = ttk.Combobox(
             self, textvariable=self.iface, values=tuple(ifa for ifa in conf.ifaces)
         )

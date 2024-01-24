@@ -19,6 +19,8 @@ from scattack.gui.tabs.wifi_deauth.layout import WifiDeauthFrame
 from tkinter import ttk
 import tkinter
 
+RESCHEDULE_INTERVAL = 125
+
 
 class TabView(ttk.Notebook):
     def __init__(self, *args, queue: TabCommandQueue, **kwargs):
@@ -57,8 +59,8 @@ class App(tkinter.Tk):
         self.tab_view = TabView(self, queue=self.tab_cmd_queue)
         self.tab_view.pack(fill="both", expand=True)
 
-        self.after(100, self.result_listener)
-        self.after(100, self.command_req_listener)
+        self.after(RESCHEDULE_INTERVAL, self.result_listener)
+        self.after(RESCHEDULE_INTERVAL, self.command_req_listener)
 
     def command_req_listener(self):
         while not self.tab_cmd_queue.empty():
@@ -88,7 +90,7 @@ class App(tkinter.Tk):
 
             self.tab_cmd_queue.task_done()
         # Reschedule the listener
-        self.after(100, self.command_req_listener)
+        self.after(RESCHEDULE_INTERVAL, self.command_req_listener)
 
     def result_listener(self):
         """Listen for results from the command executor"""
@@ -105,7 +107,7 @@ class App(tkinter.Tk):
             self.on_result(result)
             self.result_queue.task_done()
         # Reschedule the listener
-        self.after(100, self.result_listener)
+        self.after(RESCHEDULE_INTERVAL, self.result_listener)
 
     def on_result(self, event: CommandEvent):
         """Handle a result from the command executor"""

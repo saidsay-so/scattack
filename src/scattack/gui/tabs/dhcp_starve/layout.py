@@ -14,7 +14,6 @@ from scattack.gui.tabs.dhcp_starve.command import create_dhcp_stave_command
 from scattack.gui.tabs.dhcp_starve.options import DhcpStarveOptions
 from scattack.gui.validation import (
     is_float,
-    is_ip_address,
     is_ip_network,
     is_mac_address,
 )
@@ -43,7 +42,9 @@ class DhcpStarveOptionsView(ttk.Frame):
 
             num_hosts_text.set(f"Number of hosts: {Net(self.net_range.get()).count}")
 
-        num_hosts_text = StringVar()
+        num_hosts_text = StringVar(
+            value=f"Number of hosts: {Net(self.net_range.get()).count}"
+        )
         self.net_range.trace_add(
             "write",
             num_hosts_listener,
@@ -61,7 +62,7 @@ class DhcpStarveOptionsView(ttk.Frame):
         self.target_mac_input.pack(fill="x", padx=5, pady=5)
 
         ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
-        self.iface = StringVar()
+        self.iface = StringVar(value=next(ifa for ifa in conf.ifaces))
         self.iface_input = ttk.Combobox(
             self, textvariable=self.iface, values=tuple(ifa for ifa in conf.ifaces)
         )

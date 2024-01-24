@@ -29,7 +29,10 @@ class ArpPoisonOptionsView(ttk.Frame):
         self.spoofed_mac = StringVar(value="")
         self.spoofed_mac_input = ttk.Entry(
             self,
-            validatecommand=(self.register(is_mac_address), "%P"),
+            validatecommand=(
+                self.register(lambda s: is_mac_address(s) or s == ""),
+                "%P",
+            ),
             validate="focus",
             textvariable=self.spoofed_mac,
         )
@@ -58,9 +61,9 @@ class ArpPoisonOptionsView(ttk.Frame):
         self.spoofed_ip_input.pack(fill="x", padx=5, pady=5)
 
         ttk.Label(self, text="Interface").pack(fill="x", padx=5, pady=5)
-        self.iface = StringVar()
+        self.iface = StringVar(value=next(ifa for ifa in conf.ifaces))
         self.iface_input = ttk.Combobox(
-            self, textvariable=self.iface, values=conf.ifaces
+            self, textvariable=self.iface, values=tuple(ifa for ifa in conf.ifaces)
         )
         self.iface_input.pack(fill="x", padx=5, pady=5)
 
