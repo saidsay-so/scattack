@@ -1,10 +1,6 @@
 ---
 title: "Demonstration of network attacks with Scapy: scattack, a single platform to launch several attacks"
 author:
-    - name: Sayafdine Said
-      email: sayafdine.said@outlook.com
-      affiliations:
-        - ref: sorb
     - name: Aris Berkane
       email: aris.berkane@etu.sorbonne-universite.fr
       affiliations:
