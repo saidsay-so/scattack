@@ -8,7 +8,7 @@ format:
   html:
     comments:
       hypothesis: true
-  pdf: default
-
+  pdf:
+    notebook-links: false
 execute:
   freeze: true

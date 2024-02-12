@@ -26,7 +26,7 @@ abstract: >
     Implemented network attacks include Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation.
     Are described the usage of the library and its main features, the implementation of the tool and the
     attacks, and the results of the tests performed.
-    The tool is available at https://github.com/musikid/scattack.
+    The tool is available at <https://github.com/musikid/scattack>.
 bibliography: report.bib
 ---
 
@@ -76,19 +76,177 @@ It has been written by Philippe Biondi and the Scapy community in 2003,
 as a way to perform network analysis and penetration testing in a simple and efficient way,
 without the need to write complex scripts or programs.
 It features a simple and extensive API, is able to run on a fairly wide range of platforms,
-and is open-source, which makes it a very attractive tool for
-Its ability to craft packets on the fly for a wide range of protocols makes it a very versatile tool.
-Our goal is to demonstrate the usage of these features to perform several network attacks,
-in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
+and is open-source, which makes it a very attractive tool for professionals and hobbyists alike.
+Its ability to craft packets on the fly for a wide range of protocols makes it very versatile.
+Our goal is to demonstrate the usage of those features to perform several network attacks.
 
-## Project
+# Attacks
 
-The project consists in the development of a single platform tool
-to launch several network attacks using the Scapy library,
-namely Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
-The attacks differ in their nature and implementation,
-enabling to better assess the capabilities of the library in multiple scenarios.
+To demonstrate the capabilities of the Scapy library,
+three network attacks,
+differing in their nature and implementation
+to better assess the capabilities of the library in multiple scenarios,
+have been chosen to be implemented:
 
+- Wi-Fi deauthentication
+- ARP cache poisoning
+- DHCP starvation
+
+## ARP cache poisoning
+
+ARP cache poisoning is a network attack that involves sending fake Address Resolution Protocol (ARP) messages to an Ethernet LAN.
+This results in the linking of the attacker's MAC address with the IP address of a legitimate computer or server on the network.
+Once the attacker's MAC address is linked to an authentic IP address,
+the attacker will begin receiving any data that is intended for that IP address.
+This allows the attacker to intercept, modify or block the traffic.
+
+```{mermaid}
+%%| label: fig-arp-cache-poisoning
+%%| fig-width: 4
+%%| fig-cap: ARP cache poisoning attack sequence diagram
+
+sequenceDiagram
+    participant Attacker as Attacker 🎭
+    participant Target as Target 🎯
+    participant Router as Router 🌐
+    participant Victim as Victim 👤
+
+    # Initialization phase
+    Attacker->>Target: ARP Request (Who has Target's IP?)
+    Target->>Attacker: ARP Reply (I have Target's IP, my MAC is A)
+    Attacker->>Router: ARP Request (Who has Router's IP?)
+    Router->>Attacker: ARP Reply (I have Router's IP, my MAC is B)
+
+    # ARP Cache Poisoning phase
+    Attacker->>Victim: ARP Reply (I have Router's IP, my MAC is A)
+    Note over Attacker,Victim: Victim updates ARP cache with wrong MAC (A)
+
+    # Traffic redirection phase
+    Victim->>Router: Regular traffic (MAC address now points to Attacker)
+    Router->>Attacker: Forwarded traffic (Victim's communication)
+
+    # Optional: Attacker forwarding traffic to real Target
+    Attacker->>Target: Forwarded traffic from Victim
+
+    # Ongoing exploitation
+    Note over Attacker,Victim: Attacker intercepts/analyzes traffic
+```
+
+## DHCP starvation
+
+DHCP starvation is a network attack that involves sending a large number of DHCP requests to a DHCP server,
+with the aim of exhausting the pool of available IP addresses that the server can allocate.
+This results in the server being unable to allocate IP addresses to legitimate clients,
+which can lead to a denial of service (DoS) attack.
+
+```{mermaid}
+%%| label: fig-dhcp-starvation
+%%| fig-width: 4
+%%| fig-cap: DHCP starvation attack sequence diagram
+
+sequenceDiagram
+    participant Attacker as Attacker 🎭
+    participant DHCP as DHCP Server 🌐
+    participant Victim as Victim   👤
+
+    # Initialization phase
+    Attacker->>DHCP: DHCP Discover
+    DHCP->>Attacker: DHCP Offer (IP address A)
+    Attacker->>DHCP: DHCP Request (I want IP address A)
+    DHCP->>Attacker: DHCP Ack (IP address A)
+
+    # Starvation phase
+    loop n times (where n is the number of available IP addresses)
+        Attacker->>DHCP: DHCP Discover
+        DHCP->>Attacker: DHCP Offer (IP address B)
+        Attacker->>DHCP: DHCP Request (I want IP address B)
+        DHCP->>Attacker: DHCP Ack (IP address B)
+    end
+
+    # Ongoing exploitation
+    Note over Attacker,Victim: Victim unable to obtain IP address
+```
+
+## Wi-Fi deauthentication
+
+Wi-Fi deauthentication is a network attack that involves sending deauthentication frames to a client connected to a Wi-Fi network.
+This results in the client being disconnected from the network,
+and having to re-authenticate to regain access.
+This can be used to disrupt the connection of legitimate clients to a Wi-Fi network,
+or to force them to connect to a rogue access point controlled by the attacker.
+
+```{mermaid}
+%%| label: fig-wifi-deauthentication
+%%| fig-width: 4
+%%| fig-cap: Wi-Fi deauthentication attack sequence diagram
+
+sequenceDiagram
+    participant Attacker as Attacker 🎭
+    participant AP as Access Point 🌐
+    participant Client as Client 👤
+
+    # Initialization phase
+    Attacker->>AP: Deauthentication frame (Client)
+    AP->>Client: Deauthentication frame (You are disconnected)
+
+    # Ongoing exploitation
+    Note over Attacker,Client: Client unable to connect to AP
+```
+
+# Project
+
+These attacks are implemented in our project,
+which consists in the development of a single platform tool
+to launch said network attacks using the Scapy library.
+We chose to implement a graphical user interface (GUI) to provide an easy way to select the attack to perform and input its parameters
+while providing validation and error handling.
+
+## Implementation
+
+The tool is implemented in Python,
+uses the Scapy library to craft and send packets,
+and the Tkinter library to provide a graphical user interface (GUI)
+allowing to easily select the attack to perform,
+and to input the necessary parameters.
+
+![Graphical user interface of the tool](./scattack_gui.png)
+
+### Usage of Scapy
+
+The Scapy library is used to craft and send packets for the attacks.
+To craft a packet, the library provides a type for each protocol,
+which can be used to create a packet of that type,
+and then modify its fields to match the desired packet.
+The packet will then be sent on the wire using the `sendp` method.
+
+For example, to craft and send an ARP packet, the following code can be used:
+
+```python
+from scapy.all import Ether, ARP, sendp
+
+def create_arppoison_packet(
+    target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
+) -> Packet:
+    """Create ARP packet.
+
+    Args:
+        target_mac (str): MAC address of the target
+        target_ip (str): IP address of the target
+        spoofed_ip (str): IP address of the spoofed IP address
+    Returns:
+        Ether: ARP packet"""
+    return Ether(dst=ETHER_BROADCAST, src=spoofed_mac) / ARP(
+        op="is-at",
+        psrc=spoofed_ip,
+        pdst=target_ip,
+        hwdst=ETHER_ANY,
+        hwsrc=spoofed_mac,
+    )
+```
+
+## Results
+
+The tool has been tested on a variety of networks and devices,
 
 In this report, we present the development of a tool to launch network attacks using the Scapy library,
 to demonstrate the use of the library to perform different network attacks,
