@@ -13,12 +13,16 @@ def create_dhcp_stave_command(
     iface: str,
     interval: float,
 ) -> dict[str, Any]:
+    net = Net(net_range)
+    it = iter(net)
+
     def send(iface: str, target_mac: str, interval: float = interval):
-        pkt = create_dhcp_starve_packet(target_mac=target_mac)
+        nonlocal it
+        pkt = create_dhcp_starve_packet(target_mac=target_mac, ip=next(it))
         send_packet(pkt, iface)
         sleep(interval)
 
-    i = Net(net_range).count
+    i = net.count
 
     def condition():
         nonlocal i

@@ -1,5 +1,7 @@
 import logging
 import sys
+import signal
+
 from scattack.gui.command import CommandQueue, ResultQueue
 from scattack.gui.executor import CommandExecutor
 from .app import App
@@ -30,6 +32,15 @@ def main():
     executor = CommandExecutor(
         command_queue, result_queue, root_logger.getChild("executor")
     )
+
+    def signal_handler(sig, frame):
+        nonlocal executor, app
+        print("Exiting...")
+        app.quit()
+        executor.stop()
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     executor.start()
 
     sv_ttk.use_dark_theme()

@@ -1,6 +1,6 @@
 """This module is responsible for ARP poisoning."""
 
-from scapy.layers.l2 import ARP, Ether, Packet, Net
+from scapy.layers.l2 import ARP, Ether, Packet
 
 from scattack.core.utils import ETHER_ANY, ETHER_BROADCAST
 

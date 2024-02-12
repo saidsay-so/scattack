@@ -11,12 +11,7 @@ from scattack.gui.command import (
     TabCommandQueue,
 )
 from scattack.gui.validation import is_float, is_int, is_ip_address, is_mac_address
-from scattack.gui.tabs.arp_poison.options import (
-    ETHER_ANY,
-    ETHER_BROADCAST,
-    IP_ANY,
-    ARPPoisonOptions,
-)
+from scattack.gui.tabs.arp_poison.options import IP_ANY, ARPPoisonOptions
 
 from scapy.all import conf
 
