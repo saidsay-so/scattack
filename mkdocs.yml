@@ -1,0 +1,6 @@
+site_name: SCAttack
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings
