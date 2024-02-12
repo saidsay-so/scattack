@@ -6,15 +6,15 @@ author:
       affiliations:
         - ref: sorb
     - name: Aris Berkane
-      email: aris.berkane@etu.sorbonne-universite.fr
+      email:
       affiliations:
         - ref: sorb
     - name: Mohammed Benaissa
-      email: mohammed.benaissa@etu.sorbonne-universite.fr
+      email:
       affiliations:
         - ref: sorb
     - name: Serigne Saliou Ndiaye
-      email: serigne.saliou.ndiaye@etu.sorbonne-universite.fr
+      email:
       affiliations:
         - ref: sorb
 affiliations:
