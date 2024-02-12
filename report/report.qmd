@@ -14,34 +14,83 @@ author:
       affiliations:
         - ref: sorb
     - name: Serigne Saliou Ndiaye
-      email: ser@etu.sorbonne-universite.fr
+      email: serigne.saliou.ndiaye@etu.sorbonne-universite.fr
       affiliations:
         - ref: sorb
 affiliations:
   - id: sorb
     name: Sorbonne Université
 abstract: >
-    This report presents the development of a tool to launch network attacks using the Scapy library,
-    to demonstrate the use of Scapy to perform different network attacks, in particular Wifi deauthentication,
-    ARP cache poisoning and DHCP Starvation attacks.
+    We present the development of a tool to launch network attacks using the Scapy library,
+    to demonstrate the use of the library in various scenarios.
+    Implemented network attacks include Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation.
     Are described the usage of the library and its main features, the implementation of the tool and the
     attacks, and the results of the tests performed.
+bibliography: report.bib
 ---
+
+<!--
+  Introduction
+    - Context
+    - Scapy
+    - Project and attacks
+    - Objectives
+  Scapy
+    - Features
+    - Usage
+    - Implementation
+  Attacks
+    - Wifi deauthentication
+    - ARP cache poisoning
+    - DHCP Starvation
+  Project
+    - Implementation
+    - Usage
+    - Results
+  Conclusion
+    - Recap
+    - Future work
+-->
 
 # Introduction
 
-Imagine this: It's a typical Tuesday morning. You're sipping your coffee, checking your emails, and planning your day. Suddenly, your internet connection drops.
-You try to reconnect, but it's no use.
-You call your service provider,
-only to find out that your router has been the victim of a Wifi deauthentication attack with the goal of stealing your access point credentials.
-Your entire day is disrupted, all because of a vulnerability in your network.
+Network attacks are a major concern in our world growingly connected.
+As evidenced by the attacks of SolarWinds (@SolarWinds),
+which involved the compromise of the SolarWinds Orion platform
+through a stolen virtual private network (VPN) account,
+or GitHub (@GitHubDDoS) DDoS attack, relying on the use of a memcached amplification attack,
+the nature of network assaults is as diverse as their consequences.
 
-This is not a hypothetical scenario, but a real-life situation that could happen to anyone, anywhere.
-Our report delves into the Scapy library, a tool that can launch such attacks, not to create fear, but to educate and empower.
-By understanding these threats, we can build stronger defenses and ensure that our digital world remains secure.
+To defend from such breaches, it is necessary to understand
+and be able to reproduce those attacks in a controlled environment.
+Depending on their nature, implementating them require different tools and techniques,
+from network sniffing to packet crafting.
 
-In order to be able to protect from these vulnerabilities, we need to understand how they work, including how they are implemented.
-Thanks to its intuitive interface and its powerful features, Scapy represents a great tool to demonstrate these attacks.
+In this context, the Scapy library is a powerful tool to perform network analysis and penetration testing.
 
-Scapy is a Python framework which allows to craft, decode, send and capture network packets.
-It has been written by Philippe Biondi and the Scapy community in 2003, as a way to perform network analysis and penetration testing in a simple and efficient way \cite{scapy}.
+## Scapy
+
+Scapy is a powerful packet manipulation library for Python,
+which allows to forge or decode packets of a wide number of protocols,
+send them on the wire, capture them, match requests and replies,
+and much more.
+It has been written by Philippe Biondi and the Scapy community in 2003,
+as a way to perform network analysis and penetration testing in a simple and efficient way,
+without the need to write complex scripts or programs.
+It features a simple and extensive API, is able to run on a fairly wide range of platforms,
+and is open-source, which makes it a very attractive tool for
+Its ability to craft packets on the fly for a wide range of protocols makes it a very versatile tool.
+Our goal is to demonstrate the usage of these features to perform several network attacks,
+in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
+
+## Project
+
+The project consists in the development of a single platform tool
+to launch several network attacks using the Scapy library,
+including Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
+The attacks differ in their nature and implementation,
+enabling to better assess the capabilities of the library in multiple scenarios.
+
+In this report, we present the development of a tool to launch network attacks using the Scapy library,
+to demonstrate the use of the library to perform different network attacks,
+in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
