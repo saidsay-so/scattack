@@ -26,6 +26,7 @@ abstract: >
     Implemented network attacks include Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation.
     Are described the usage of the library and its main features, the implementation of the tool and the
     attacks, and the results of the tests performed.
+    The tool is available at https://github.com/musikid/scattack.
 bibliography: report.bib
 ---
 
@@ -33,16 +34,13 @@ bibliography: report.bib
   Introduction
     - Context
     - Scapy
-    - Project and attacks
-    - Objectives
-  Scapy
-    - Features
-    - Usage
-    - Implementation
-  Attacks
-    - Wifi deauthentication
-    - ARP cache poisoning
-    - DHCP Starvation
+    - Attacks
+      - Wifi deauthentication
+      - ARP cache poisoning
+      - DHCP Starvation
+    - Project
+      - scapy
+      - gui
   Project
     - Implementation
     - Usage
@@ -87,9 +85,10 @@ in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation at
 
 The project consists in the development of a single platform tool
 to launch several network attacks using the Scapy library,
-including Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
+namely Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
 The attacks differ in their nature and implementation,
 enabling to better assess the capabilities of the library in multiple scenarios.
+
 
 In this report, we present the development of a tool to launch network attacks using the Scapy library,
 to demonstrate the use of the library to perform different network attacks,

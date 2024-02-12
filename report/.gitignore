@@ -1,3 +1,5 @@
 *
 !*.qmd
 !*.bib
+!_quarto.yml
+/.quarto/
