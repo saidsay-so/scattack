@@ -38,13 +38,9 @@ bibliography: report.bib
       - Wifi deauthentication
       - ARP cache poisoning
       - DHCP Starvation
-    - Project
-      - scapy
-      - gui
   Project
     - Implementation
-    - Usage
-    - Results
+    - Tests
   Conclusion
     - Recap
     - Future work
@@ -203,28 +199,92 @@ and to input the necessary parameters.
 
 ![Graphical user interface of the tool](./scattack_gui.png)
 
-The tool is composed of two main components:
+It follows a modular architecture, with a core module containing the main logic of the tool,
+and is composed of two main components:
 
 - The user interface, which allows the user to select the attack to perform and input its parameters,
   provides validation and error handling,
 - The executor, which takes the parameters from the GUI and performs the attack while returning the errors and results to the GUI.
 
-These components communicate using message passing through the Python [`Queue`](https://docs.python.org/3/library/queue.html) class,
+These components are executed on different threads and
+communicate using message passing through queues,
 and a set of commands and responses classes to ensure a unified communication.
 
 ```{mermaid}
+%%| label: fig-class-diagram
+%%| fig-height: 7
+%%| fig-width: 5
+%%| fig-cap: Class diagram of the command pattern used for communication between the user interface and the executor
+
+classDiagram
+    direction RL
+    class CommandCompleted {
+        +command_id: CommandId
+        +result: Exception | None
+    }
+    class CommandScheduled {
+        +command_id: CommandId
+    }
+    class CommandEvent {
+    }
+
+    CommandCompleted ..|> CommandEvent
+    CommandScheduled ..|> CommandEvent
+
+    note for CommandCompleted "Sent by the executor to the user interface to indicate that command completion"
+
+
+    class CommandStartRequest {
+        +callback: Callable[[CommandEvent], None]
+        +fun: Callable[..., Any]
+        +args: Iterable
+        +kwargs: dict[str, Any]
+        +condition: Callable[[], bool]
+        +command_id: CommandId
+    }
+    class CommandStopRequest {
+        +command_id: CommandId
+    }
+    class CommandRequest {
+    }
+    note for CommandRequest "Sent by the user interface to the executor to request the execution of a command"
+
+    CommandStartRequest ..|> CommandRequest
+    CommandStopRequest ..|> CommandRequest
+```
+
+
+The user interface is composed of a set of forms to input the parameters of the attacks,
+and a button to start and stop the current attack.
+Parameters change depending on the attack selected,
+and are validated to ensure that they are correct before being sent to the executor.
+
+```{mermaid}
 %%| label: fig-architecture
+%%| fig-height: 4
 %%| fig-width: 5
 %%| fig-cap: Architecture of the tool
 
+flowchart TB
+  subgraph Interface
+    B[Attack parameters]
+    B --> C[Validation]
+    C --> D[Attack request]
+    AE[Attack stop]
+    E[Result handling]
+  end
+
+  D -->|CommandStartRequest| G
+  AE -->|CommandStopRequest| G
+
+  subgraph Executor
+    direction TB
+    G[Attack execution]
+    G --> R[Result]
+    R -->|CommandCompleted| E
+  end
 
 ```
-
-### User interface
-
-### Executor
-
-
 
 ## Usage of Scapy
 
@@ -273,7 +333,7 @@ target_ips = ["172.0.0.2", "172.0.0.3"]
 1. Create an Ethernet frame with the destination MAC address set to the broadcast address and the source MAC address set to the attacker's MAC address.
 2. Add an ARP layer to the frame using the `/` operator to stack the layers.
 3. Set the ARP operation to "is-at" (response) with a string value, which could also be set to 2.
-4. We use a list to illustrate that multiple IP addresses can be targeted and for each a different packet will be generated.
+4. Use a list to illustrate that multiple IP addresses can be targeted and for each a different packet will be generated.
 
 Using these crafting capabilities, we implemented the attacks in our tool.
 
@@ -282,25 +342,32 @@ Using these crafting capabilities, we implemented the attacks in our tool.
 This attack is very different from the others, as it targets a lower layer of the OSI model
 which is the data link layer, and more specifically the 802.11 standard for wireless networks.
 Network attacks at this level are more complex to implement and require a wireless network interface card (NIC) in monitor mode.
-The attack is performed by sending deauthentication frames to the targeted client,
+The attack is performed by sending deauthentication frames to the targeted client (as illustrated in @fig-wifi-deauthentication),
 which will result in the client being disconnected from the network.
-The AP BSSID is spoofed to make the client believe that the deauthentication frame comes from the AP.
+The access point (AP) BSSID is spoofed to make the client believe that the deauthentication frame comes from the AP.
 
-In terms of Scapy, the deauthentication frame is crafted as follows:
+With Scapy, the deauthentication frame is crafted as follows:
 
 ```python
 from scapy.all import Dot11, Dot11Deauth, RadioTap
 
-# Create a deauthentication frame
-(
-    RadioTap() # <1>
-    / Dot11( # <2>
-        addr1=target_mac, # <3>
-        addr2=ap_bssid, # <4>
-        addr3=ap_bssid, # <4>
+def create_deauth_packet(target_mac: str, ap_bssid: str) -> Packet:
+    """Create 802.11 deauthentification packet.
+
+    Args:
+        target_mac (str): MAC address of the target
+        ap_bssid (str): BSSID of the spoofed access point
+    Returns:
+        Packet: 802.11 deauthentification packet"""
+    return (
+      RadioTap() # <1>
+      / Dot11( # <2>
+          addr1=target_mac, # <3>
+          addr2=ap_bssid, # <4>
+          addr3=ap_bssid, # <4>
+      )
+      / Dot11Deauth(reason=7) # <5>
     )
-    / Dot11Deauth(reason=7) # <5>
-)
 ```
 1. Create a RadioTap frame to allow the injection of the frame into the data link layer.
 2. Add a Dot11 layer to the frame for the 802.11 standard frame format.
@@ -308,17 +375,121 @@ from scapy.all import Dot11, Dot11Deauth, RadioTap
 4. Set the source and BSSID MAC addresses to the AP's BSSID.
 5. Add a Dot11Deauth layer to the frame to send the deauthentication management frame.
 
-These frames are then sent using the `sendp` function from Scapy.
 With the user interface, the user can input the MAC address of the client to deauthenticate and the BSSID of the AP to spoof,
 while ensuring that the input is valid and handling any errors.
 
 ![Wi-Fi deauthentication attack form, with invalid target MAC address to highlight input validation](./wifi_deuath_invalid.png)
 
+The frames can be sent infinitely or a specified number of times,
+and the user can start and stop the attack at any time.
 
+#### ARP cache poisoning
 
-## Results
+This attack is performed by sending fake ARP messages to the target,
+which will result in the linking of the attacker's MAC address with the IP address of the target.
+The attacker will then begin receiving any data that is intended for that IP address.
+This allows the attacker to intercept, modify or block the traffic.
 
-The tool has been tested on a variety of networks and devices,
+The packet is forged as follows:
+
+```python
+from scapy.all import ARP, Ether
+
+# Create an ARP packet
+def create_arppoison_packet(
+    target_ip: str,
+    spoofed_ip: str,
+    spoofed_mac: str | None = None,
+) -> Packet:
+    """Create ARP packet.
+
+    Args:
+        target_mac (str): MAC address of the target
+        target_ip (str): IP address of the target
+        spoofed_ip (str):
+         IP address of the spoofed IP address
+    Returns:
+        Ether: ARP packet"""
+    return (
+      Ether(dst="ff:ff:ff:ff:ff:ff") # <1>
+      / ARP( # <2>
+          op=2, # <3>
+          psrc=spoofed_ip, # <4>
+          pdst=target_ips, # <5>
+          hwdst="00:00:00:00:00:00", # <6>
+          hwsrc=spoofed_mac, # <7>
+      )
+    )
+```
+1. Create an Ethernet frame with the destination MAC address set to the broadcast address.
+2. Add an ARP layer to the frame using the `/` operator to stack the layers.
+3. Set the ARP operation to 2 (response).
+4. Set the source IP address to the attacker's IP address.
+5. Set the destination IP address to the target's IP address.
+6. Set the destination MAC address to the broadcast address.
+7. Set the source MAC address to the attacker's MAC address.
+
+With the user interface, the user can input the MAC and IP addressses to spoof,
+while ensuring that the input is valid.
+
+![ARP cache poisoning attack form, with invalid target IP address to highlight input validation](./arp_invalid.png)
+
+The frames can be sent infinitely or a specified number of times.
+
+#### DHCP starvation
+
+This attack is performed by sending a large number of DHCP requests to a DHCP server,
+with the aim of exhausting its pool of available IP addresses.
+This results in the server being unable to allocate IP addresses to legitimate clients,
+which can lead to a denial of service (DoS) attack.
+
+In terms of Scapy, the DHCP starvation is crafted as follows:
+
+```python
+from scapy.all import BOOTP, DHCP, Ether, IP, UDP
+
+def create_dhcp_starve_packet(
+    ip: str,
+    target_mac: str = ETHER_BROADCAST,
+) -> Packet:
+    """Create DHCP packet.
+
+    Args:
+        ip (str): IP address to request
+        server_ip (str): IP address of the server
+    Returns:
+        Packet: DHCP packet"""
+    mac = RandMAC()
+    return (
+        Ether(src=mac, dst=target_mac)  # <1>
+        / IP(src=IP_ANY, dst=IP_BROADCAST)  # <2>
+        / UDP(sport=68, dport=67)  # <3>
+        / BOOTP(chaddr=mac)  # <4>
+        / DHCP(  # <5>
+            options=[
+                ("message-type", "request"),  # <6>
+                ("requested_addr", ip),  # <7>
+                "end",  # <8>
+            ]
+        )
+    )
+```
+1. Create an Ethernet frame with the source MAC address set to a random MAC address and the destination MAC address set to the target's MAC address.
+2. Add the IP layer to the frame with the usual source and destination IP addresses for a DHCP request.
+3. Add the UDP layer to the frame with the usual source and destination ports for a DHCP request.
+4. Add the BOOTP layer to the frame with the source MAC address set to a random MAC address.
+5. Add the DHCP layer to the frame with its options.
+6. Set the DHCP message type to "request".
+7. Set the requested IP address to the IP address to request from the DHCP server pool.
+8. Add the "end" option to the DHCP packet to indicate the end of the options.
+
+With the user interface, the user can input the range of IP addresses
+to request from the DHCP server with an indication of the number of requests to send,
+and the target MAC address.
+
+![DHCP starvation attack form](./dhcp_range.png)
+
+## Tests
 
 In this report, we present the development of a tool to launch network attacks using the Scapy library,
 to demonstrate the use of the library to perform different network attacks,

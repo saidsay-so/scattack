@@ -10,7 +10,7 @@ def create_dhcp_starve_packet(ip: str, target_mac: str = ETHER_BROADCAST) -> Pac
     """Create DHCP packet.
 
     Args:
-        net_range (str): Network range
+        ip (str): IP address to request
         server_ip (str): IP address of the server
     Returns:
         Packet: DHCP packet"""

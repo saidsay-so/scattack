@@ -1,5 +1,6 @@
 project:
   type: manuscript
+  output-dir: docs
 
 manuscript:
   article: index.qmd
@@ -9,7 +10,7 @@ format:
     comments:
       hypothesis: true
   pdf:
+    mermaid:
+      theme: neutral
     notebook-links: false
     fig-pos: H
-execute:
-  freeze: true

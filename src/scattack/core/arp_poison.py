@@ -6,7 +6,9 @@ from scattack.core.utils import ETHER_ANY, ETHER_BROADCAST
 
 
 def create_arppoison_packet(
-    target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
+    target_ip: str,
+    spoofed_ip: str,
+    spoofed_mac: str | None = None,
 ) -> Packet:
     """Create ARP packet.
 

@@ -23,6 +23,10 @@ class CommandExecutor(Thread):
 
     cmd_queue: CommandQueue
     """The queue of commands to execute"""
+    res_queue: ResultQueue
+    """The queue of results from the commands"""
+    logger: Logger
+    """The logger for the executor"""
 
     def __init__(
         self,
