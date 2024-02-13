@@ -10,5 +10,6 @@ format:
       hypothesis: true
   pdf:
     notebook-links: false
+    fig-pos: H
 execute:
   freeze: true

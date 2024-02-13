@@ -68,7 +68,7 @@ In this context, the Scapy library is a powerful tool to perform network analysi
 
 ## Scapy
 
-Scapy is a powerful packet manipulation library for Python,
+Scapy is a packet manipulation library for Python,
 which allows to forge or decode packets of a wide number of protocols,
 send them on the wire, capture them, match requests and replies,
 and much more.
@@ -92,9 +92,34 @@ have been chosen to be implemented:
 - ARP cache poisoning
 - DHCP starvation
 
+## Wi-Fi deauthentication
+
+Wi-Fi deauthentication involves sending deauthentication frames to a client connected to a Wi-Fi network.
+This results in the client being disconnected from the network,
+and having to re-authenticate to regain access.
+This can be used to disrupt the connection of legitimate clients to a Wi-Fi network,
+or to force them to connect to a rogue access point controlled by the attacker.
+
+```{mermaid}
+%%| label: fig-wifi-deauthentication
+%%| fig-width: 5
+%%| fig-cap: Wi-Fi deauthentication attack sequence diagram
+
+sequenceDiagram
+    participant Attacker as Attacker 🎭
+    participant AP as Access Point 🌐
+    participant Client as Client 👤
+
+    # Initialization phase
+    Attacker->>Client: Deauthentication frame (Client)
+
+    # Ongoing exploitation
+    Note over Attacker,Client: Client disconnected from AP
+```
+
 ## ARP cache poisoning
 
-ARP cache poisoning is a network attack that involves sending fake Address Resolution Protocol (ARP) messages to an Ethernet LAN.
+ARP cache poisoning works by sending fake Address Resolution Protocol (ARP) messages to an Ethernet LAN.
 This results in the linking of the attacker's MAC address with the IP address of a legitimate computer or server on the network.
 Once the attacker's MAC address is linked to an authentic IP address,
 the attacker will begin receiving any data that is intended for that IP address.
@@ -102,7 +127,7 @@ This allows the attacker to intercept, modify or block the traffic.
 
 ```{mermaid}
 %%| label: fig-arp-cache-poisoning
-%%| fig-width: 4
+%%| fig-width: 5.5
 %%| fig-cap: ARP cache poisoning attack sequence diagram
 
 sequenceDiagram
@@ -122,8 +147,7 @@ sequenceDiagram
     Note over Attacker,Victim: Victim updates ARP cache with wrong MAC (A)
 
     # Traffic redirection phase
-    Victim->>Router: Regular traffic (MAC address now points to Attacker)
-    Router->>Attacker: Forwarded traffic (Victim's communication)
+    Victim->>Attacker: Regular traffic (MAC address now points to Attacker)
 
     # Optional: Attacker forwarding traffic to real Target
     Attacker->>Target: Forwarded traffic from Victim
@@ -134,14 +158,14 @@ sequenceDiagram
 
 ## DHCP starvation
 
-DHCP starvation is a network attack that involves sending a large number of DHCP requests to a DHCP server,
+DHCP starvation imply sending a large number of DHCP requests to a DHCP server,
 with the aim of exhausting the pool of available IP addresses that the server can allocate.
 This results in the server being unable to allocate IP addresses to legitimate clients,
 which can lead to a denial of service (DoS) attack.
 
 ```{mermaid}
 %%| label: fig-dhcp-starvation
-%%| fig-width: 4
+%%| fig-width: 5
 %%| fig-cap: DHCP starvation attack sequence diagram
 
 sequenceDiagram
@@ -149,48 +173,15 @@ sequenceDiagram
     participant DHCP as DHCP Server 🌐
     participant Victim as Victim   👤
 
-    # Initialization phase
-    Attacker->>DHCP: DHCP Discover
-    DHCP->>Attacker: DHCP Offer (IP address A)
-    Attacker->>DHCP: DHCP Request (I want IP address A)
-    DHCP->>Attacker: DHCP Ack (IP address A)
-
-    # Starvation phase
     loop n times (where n is the number of available IP addresses)
         Attacker->>DHCP: DHCP Discover
-        DHCP->>Attacker: DHCP Offer (IP address B)
-        Attacker->>DHCP: DHCP Request (I want IP address B)
-        DHCP->>Attacker: DHCP Ack (IP address B)
+        DHCP->>Attacker: DHCP Offer (IP address n)
+        Attacker->>DHCP: DHCP Request (I want IP address n)
+        DHCP->>Attacker: DHCP Ack (IP address n)
     end
 
-    # Ongoing exploitation
-    Note over Attacker,Victim: Victim unable to obtain IP address
-```
-
-## Wi-Fi deauthentication
-
-Wi-Fi deauthentication is a network attack that involves sending deauthentication frames to a client connected to a Wi-Fi network.
-This results in the client being disconnected from the network,
-and having to re-authenticate to regain access.
-This can be used to disrupt the connection of legitimate clients to a Wi-Fi network,
-or to force them to connect to a rogue access point controlled by the attacker.
-
-```{mermaid}
-%%| label: fig-wifi-deauthentication
-%%| fig-width: 4
-%%| fig-cap: Wi-Fi deauthentication attack sequence diagram
-
-sequenceDiagram
-    participant Attacker as Attacker 🎭
-    participant AP as Access Point 🌐
-    participant Client as Client 👤
-
-    # Initialization phase
-    Attacker->>AP: Deauthentication frame (Client)
-    AP->>Client: Deauthentication frame (You are disconnected)
-
-    # Ongoing exploitation
-    Note over Attacker,Client: Client unable to connect to AP
+    Victim->>DHCP: DHCP Discover
+    Note over DHCP,Victim: Server unable to offer IP address
 ```
 
 # Project
@@ -198,51 +189,132 @@ sequenceDiagram
 These attacks are implemented in our project,
 which consists in the development of a single platform tool
 to launch said network attacks using the Scapy library.
-We chose to implement a graphical user interface (GUI) to provide an easy way to select the attack to perform and input its parameters
-while providing validation and error handling.
+We chose to implement it as a graphical user interface (GUI)
+to provide an easy way to select the attack to perform
+and input its parameters while providing validation and error handling.
 
-## Implementation
+### Architecture
 
 The tool is implemented in Python,
 uses the Scapy library to craft and send packets,
 and the Tkinter library to provide a graphical user interface (GUI)
-allowing to easily select the attack to perform,
+allowing to easily select the attack to perform
 and to input the necessary parameters.
 
 ![Graphical user interface of the tool](./scattack_gui.png)
 
-### Usage of Scapy
+The tool is composed of two main components:
 
-The Scapy library is used to craft and send packets for the attacks.
-To craft a packet, the library provides a type for each protocol,
-which can be used to create a packet of that type,
-and then modify its fields to match the desired packet.
-The packet will then be sent on the wire using the `sendp` method.
+- The user interface, which allows the user to select the attack to perform and input its parameters,
+  provides validation and error handling,
+- The executor, which takes the parameters from the GUI and performs the attack while returning the errors and results to the GUI.
 
-For example, to craft and send an ARP packet, the following code can be used:
+These components communicate using message passing through the Python [`Queue`](https://docs.python.org/3/library/queue.html) class,
+and a set of commands and responses classes to ensure a unified communication.
+
+```{mermaid}
+%%| label: fig-architecture
+%%| fig-width: 5
+%%| fig-cap: Architecture of the tool
+
+
+```
+
+### User interface
+
+### Executor
+
+
+
+## Usage of Scapy
+
+The library provides a simple and efficient way to craft packets,
+in the form of a domain-specific language (DSL) using Python syntax,
+that allows for a robust and efficient definition of any type of packet.
+The advantage of using Python syntax and a Python interpreter
+as the DSL syntax and interpreter is threefold:
+it eliminates the need for a separate interpreter,
+it spares users from learning a new language,
+and it provides a comprehensive, succinct, and highly capable language.
+
+Scapy's design allows users to define a packet
+or a series of packets as layers stacked on top of each other.
+Each layer's fields have practical default values that can be overridden as needed.
+Scapy does not impose the use of predefined methods or templates,
+which removes the necessity of creating a new tool for each unique scenario.
+In contrast to languages like C, where it might take an average of 60 lines to describe a packet,
+Scapy can accomplish this in just one line.
+
+For example, to craft an ARP poisoned packet:
 
 ```python
-from scapy.all import Ether, ARP, sendp
+from scapy.all import Ether, ARP
 
-def create_arppoison_packet(
-    target_ip: str, spoofed_ip: str, spoofed_mac: str | None = None
-) -> Packet:
-    """Create ARP packet.
+# ETHER_BROADCAST is a constant defined as a bytes object,
+# but could also be a string
+ETHER_BROADCAST = bytes.fromhex("ffffffffffff")
+ETHER_ANY = "00:00:00:00:00:00"
+spoofed_mac = "00:11:22:33:44:55"
+spoofed_ip = "127.0.0.1"
+target_ips = ["172.0.0.2", "172.0.0.3"]
 
-    Args:
-        target_mac (str): MAC address of the target
-        target_ip (str): IP address of the target
-        spoofed_ip (str): IP address of the spoofed IP address
-    Returns:
-        Ether: ARP packet"""
-    return Ether(dst=ETHER_BROADCAST, src=spoofed_mac) / ARP(
-        op="is-at",
+
+(
+    Ether(dst=ETHER_BROADCAST, src=spoofed_mac) # <1>
+    / ARP( # <2>
+        op="is-at", # <3>
         psrc=spoofed_ip,
-        pdst=target_ip,
+        pdst=target_ips, # <4>
         hwdst=ETHER_ANY,
         hwsrc=spoofed_mac,
     )
+)
 ```
+1. Create an Ethernet frame with the destination MAC address set to the broadcast address and the source MAC address set to the attacker's MAC address.
+2. Add an ARP layer to the frame using the `/` operator to stack the layers.
+3. Set the ARP operation to "is-at" (response) with a string value, which could also be set to 2.
+4. We use a list to illustrate that multiple IP addresses can be targeted and for each a different packet will be generated.
+
+Using these crafting capabilities, we implemented the attacks in our tool.
+
+#### Wi-Fi deauthentication
+
+This attack is very different from the others, as it targets a lower layer of the OSI model
+which is the data link layer, and more specifically the 802.11 standard for wireless networks.
+Network attacks at this level are more complex to implement and require a wireless network interface card (NIC) in monitor mode.
+The attack is performed by sending deauthentication frames to the targeted client,
+which will result in the client being disconnected from the network.
+The AP BSSID is spoofed to make the client believe that the deauthentication frame comes from the AP.
+
+In terms of Scapy, the deauthentication frame is crafted as follows:
+
+```python
+from scapy.all import Dot11, Dot11Deauth, RadioTap
+
+# Create a deauthentication frame
+(
+    RadioTap() # <1>
+    / Dot11( # <2>
+        addr1=target_mac, # <3>
+        addr2=ap_bssid, # <4>
+        addr3=ap_bssid, # <4>
+    )
+    / Dot11Deauth(reason=7) # <5>
+)
+```
+1. Create a RadioTap frame to allow the injection of the frame into the data link layer.
+2. Add a Dot11 layer to the frame for the 802.11 standard frame format.
+3. Set the destination MAC address to the client's MAC address.
+4. Set the source and BSSID MAC addresses to the AP's BSSID.
+5. Add a Dot11Deauth layer to the frame to send the deauthentication management frame.
+
+These frames are then sent using the `sendp` function from Scapy.
+With the user interface, the user can input the MAC address of the client to deauthenticate and the BSSID of the AP to spoof,
+while ensuring that the input is valid and handling any errors.
+
+![Wi-Fi deauthentication attack form, with invalid target MAC address to highlight input validation](./wifi_deuath_invalid.png)
+
+
 
 ## Results
 
