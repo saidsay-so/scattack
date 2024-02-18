@@ -1,17 +1,10 @@
-# Welcome to MkDocs
+# scattack
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Scattack was created to demonstrate the use of Scapy to perform Wifi deauthentication, ARP cache poisoning and DHCP Starvation attacks.
+It is inspired by several github repos and aims to create a single platform to launch several attacks.
 
-## Commands
+The implemented attacks are:
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- Wifi deauthentication, using the `scapy.layers.dot11` module to send deauthentication packets to a target access point.
+- ARP cache poisoning, using the `scapy.layers.l2` module to send ARP packets to a target host.
+- DHCP Starvation, using the `scapy.layers.dhcp` module to send DHCP requests to a target DHCP server.

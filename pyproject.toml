@@ -3,7 +3,7 @@ name = "scattack"
 version = "0.1.0"
 description = "A simple tool to perform various attacks on a network, using scapy."
 authors = [
-    {name = "Sayafdine Said", email = "musikid@outlook.com"},
+    {name = "Sayafdine Said", email = "sayafdine.said@outlook.com"},
 ]
 dependencies = [
     "scapy>=2.5.0",

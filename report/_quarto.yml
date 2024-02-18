@@ -7,9 +7,8 @@ manuscript:
 
 format:
   html:
-    comments:
-      hypothesis: true
-  pdf:
+    embed-resources: true
+  acs-pdf:
     mermaid:
       theme: neutral
     notebook-links: false

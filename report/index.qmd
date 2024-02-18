@@ -20,6 +20,8 @@ author:
 affiliations:
   - id: sorb
     name: Sorbonne Université
+    city: Paris
+    country: France
 abstract: >
     We present the development of a tool to launch network attacks using the Scapy library,
     to demonstrate the use of the library in various scenarios.
@@ -98,7 +100,6 @@ or to force them to connect to a rogue access point controlled by the attacker.
 
 ```{mermaid}
 %%| label: fig-wifi-deauthentication
-%%| fig-width: 5
 %%| fig-cap: Wi-Fi deauthentication attack sequence diagram
 
 sequenceDiagram
@@ -123,7 +124,7 @@ This allows the attacker to intercept, modify or block the traffic.
 
 ```{mermaid}
 %%| label: fig-arp-cache-poisoning
-%%| fig-width: 5.5
+%%| fig-width: 7
 %%| fig-cap: ARP cache poisoning attack sequence diagram
 
 sequenceDiagram
@@ -161,7 +162,7 @@ which can lead to a denial of service (DoS) attack.
 
 ```{mermaid}
 %%| label: fig-dhcp-starvation
-%%| fig-width: 5
+%%| fig-width: 7
 %%| fig-cap: DHCP starvation attack sequence diagram
 
 sequenceDiagram
@@ -212,8 +213,7 @@ and a set of commands and responses classes to ensure a unified communication.
 
 ```{mermaid}
 %%| label: fig-class-diagram
-%%| fig-height: 7
-%%| fig-width: 5
+%%| fig-width: 5.5
 %%| fig-cap: Class diagram of the command pattern used for communication between the user interface and the executor
 
 classDiagram
@@ -489,8 +489,8 @@ and the target MAC address.
 
 ![DHCP starvation attack form](./dhcp_range.png)
 
-## Tests
+<!-- ## Tests
 
 In this report, we present the development of a tool to launch network attacks using the Scapy library,
 to demonstrate the use of the library to perform different network attacks,
-in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks.
+in particular Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation attacks. -->
