@@ -11,9 +11,9 @@ _Use the code from the suggested github repos (or more) to create a single platf
 
 ## Documentation
 
-The documentation is available at <https://musikid.github.io/scattack>,
-with the report available at <https://musikid.github.io/scattack/report.html>
-or for the PDF format <https://musikid.github.io/scattack/index.pdf>.
+The documentation is available at <https://saidsay-so.github.io/scattack>,
+with the report available at <https://saidsay-so.github.io/scattack/report.html>
+or for the PDF format <https://saidsay-so.github.io/scattack/index.pdf>.
 
 ## Development
 

@@ -28,7 +28,7 @@ abstract: >
     Implemented network attacks include Wi-Fi deauthentication, ARP cache poisoning and DHCP starvation.
     Are described the usage of the library and its main features, the implementation of the tool and the
     attacks, and the results of the tests performed.
-    The tool is available at <https://github.com/musikid/scattack>.
+    The tool is available at <https://github.com/saidsay-so/scattack>.
 bibliography: report.bib
 ---
 
